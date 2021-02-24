@@ -24,6 +24,10 @@ teamA_attack = pcase {
 	20: shoot -> teamB_block
 };
 
+// add ball location parameter to pass, dribble, shoot/block
+// pass/dribble foreward or backward only
+// horizontal zones 1,2,3,4... 100?. for the ball position
+
 teamB_attack = pcase {
 	5: stay -> teamB_attack
 	15: run -> teamB_attack
