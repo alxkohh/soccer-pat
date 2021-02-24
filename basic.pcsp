@@ -1,0 +1,71 @@
+﻿
+/*
+	A very basic model for a football match. 
+	Approach is high level, looking at teamA vs teamB, not looking at individual footballers.
+	teamA and teamB has different footballing abilities, we want to see who is the likely winner. (First to score is the winner)
+	
+	In this toy example, we set teamB to be very bad shot blockers. Common sense tells us that teamB is likely to lose.
+	Indeed, teamB only has 16% chance to win. In other words, teamA is expected to win with 84% chance.
+*/
+
+#define teamA 1;
+#define teamB 2;
+
+var winner = -1;
+
+#define teamA_win winner == teamA;
+#define teamB_win winner == teamB;
+
+teamA_attack = pcase {
+	5: stay -> teamA_attack
+	15: run -> teamA_attack
+	20: dribble -> teamB_tackle
+	40: pass -> teamB_intercept
+	20: shoot -> teamB_block
+};
+
+teamB_attack = pcase {
+	5: stay -> teamB_attack
+	15: run -> teamB_attack
+	20: dribble -> teamA_tackle
+	40: pass -> teamA_intercept
+	20: shoot -> teamA_block
+};
+
+
+// team B defenses - 3 types
+teamB_tackle = pcase {
+	60: succeed -> teamB_attack
+	40: fail -> teamA_attack
+};
+
+teamB_intercept = pcase {
+	30: succeed -> teamB_attack
+	70: fail -> teamA_attack
+};
+
+teamB_block = pcase {
+	10: succeed -> teamB_attack
+	90: fail{winner = teamA} -> Skip
+};
+
+
+// team A defenses - 3 types
+teamA_tackle = pcase {
+	60: succeed -> teamA_attack
+	40: fail -> teamB_attack
+};
+
+teamA_intercept = pcase {
+	30: succeed -> teamA_attack
+	70: fail -> teamB_attack
+};
+
+teamA_block = pcase {
+	70: succeed -> teamA_attack
+	30: fail{winner = teamB} -> Skip
+};
+
+match = teamA_attack;	// teamA starts the match
+
+#assert match reaches teamB_win with prob;	// prob of teamA winning the match
