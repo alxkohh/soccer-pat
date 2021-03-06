@@ -1,6 +1,15 @@
 ﻿/*
 	Model for a simplified football match.
 	Approach is high level, looking at teamA vs teamB, not looking at individual footballers.
+
+	Some assumptions / simplified rules for our football match:
+
+	1. First team to score wins the entire match
+	2. teamA kicks off the match
+	3. Ball does not go out of bounds
+	4. No fouls committed
+	5. Shots are not blocked by defenders. It is always the goalkeeper that tries to save the shot.
+	6. Players will never pass or dribble backwards
 */
 
 #define teamA 1;
@@ -132,6 +141,6 @@ match = teamA_attack;	// teamA starts the match
 	That is to say, teamA has a greater chance of winning the match compared to teamB! (44.11%)
 	
 	Why is that so?
-	Observe the match conditions, teamA gets to start the match, at teamA_midfield_zone.
+	Observe the match conditions - teamA gets to start the match, at teamA_midfield_zone.
 	Apparently, that gives teamA a slight advantage.
 */
