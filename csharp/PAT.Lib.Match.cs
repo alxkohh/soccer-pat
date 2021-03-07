@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 
 //the namespace must be PAT.Lib, the class and method names can be arbitrary
-namespace PAT.Lib
-{
+namespace PAT.Lib {
     /// <summary>
     /// You can use static library in PAT model.
     /// All methods should be declared as public static.
@@ -19,8 +18,8 @@ namespace PAT.Lib
     /// 
     /// Note: method names are case sensetive
     /// </summary>
-    public class Football
-    {
+    public class Match {
+
     	private static int teamA_penalty_box = 20;
     	private static int teamA_midfield_zone = 40;
     	private static int teamB_midfield_zone = 60;
