@@ -4,10 +4,7 @@ Team name:
 gamestonks
 
 Team members:
-Alex
-Yi Jing
-Alfred
-Qing Zhou
+Alex, Yi Jing, Alfred, Qing Zhou
 
 ## Setup
 
