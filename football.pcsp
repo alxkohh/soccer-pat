@@ -57,30 +57,21 @@ teamB_attack = pcase {
 
 */
 
-// teamB_tackle = process 1
 teamB_tackle = pcase {
 
 	// logic: large ball_loc means ball in teamB's defense zone, more teamB defenders to tackle
 
 	ball_loc: succeed -> teamB_attack
-	100 - ball_loc: fail {
-			
-			ball_loc = call(updateBallLoc, ball_loc, 1);
-			
-	} -> teamA_attack
+	100 - ball_loc: fail { ball_loc = call(ball_move_forward, teamA, 1, ball_loc) } -> teamA_attack
+	// ball move forward 1 zone for teamA
 };
 
-// teamB_intercept = process 2
 teamB_intercept = pcase {
 	
 	// logic: large ball_loc means ball in teamB's defense zone, more teamB defenders to intercept
 
 	ball_loc: succeed -> teamB_attack
-	100 - ball_loc: fail {
-			
-			ball_loc = call(updateBallLoc, ball_loc, 2);
-			
-		} -> teamA_attack
+	100 - ball_loc: fail { ball_loc = call(ball_move_forward, teamA, 2, ball_loc) } -> teamA_attack
 };
 
 teamB_goalkeeper_save = pcase {
@@ -91,30 +82,20 @@ teamB_goalkeeper_save = pcase {
 	ball_loc: fail { winner = teamA } -> Skip	// teamA scores and hence wins the match!
 };
 
-// teamA_tackle = process 3
 teamA_tackle = pcase {
 
 	// logic: small ball_loc means ball in teamA's defense zone, more teamA defenders to tackle
 
 	100 - ball_loc: succeed -> teamA_attack
-	ball_loc: fail {
-
-			ball_loc = call(updateBallLoc, ball_loc, 3);
-			
-		} -> teamB_attack
+	ball_loc: fail { ball_loc = call(ball_move_forward, teamB, 1, ball_loc) } -> teamB_attack
 };
 
-// teamA_intercept = process 4
 teamA_intercept = pcase {
 	
 	// logic: small ball_loc means ball in teamA's defense zone, more teamA defenders to intercept
 
 	100 - ball_loc: succeed -> teamA_attack
-	ball_loc: fail {
-			
-			ball_loc = call(updateBallLoc, ball_loc, 4);
-			
-		} -> teamB_attack
+	ball_loc: fail { ball_loc = call(ball_move_forward, teamB, 2, ball_loc) } -> teamB_attack
 };
 
 teamA_goalkeeper_save = pcase {
@@ -130,9 +111,9 @@ match = teamA_attack;	// teamA starts the match
 #assert match reaches teamA_win with prob;	// prob of teamA winning the match
 
 /* 
-	Probability of teamA winning the match is 55.89%
+	Probability of teamA winning the match is 55.63%
 	
-	That is to say, teamA has a greater chance of winning the match compared to teamB! (44.11%)
+	That is to say, teamA has a greater chance of winning the match compared to teamB! (44.37%)
 	
 	Why is that so?
 	Observe the match conditions - teamA gets to start the match, at teamA_midfield_zone.
