@@ -17,14 +17,12 @@
 #define teamA 1;
 #define teamB 2;
 
-// simplified football pitch, only 4 zones.
+// simplified football pitch, only 4 zones. A large value would mean closer proximity to teamB's goalpost.
 
 #define teamA_penalty_box 20;	// teamA's goalpost is inside this zone
 #define teamA_midfield_zone 40;
 #define teamB_midfield_zone 60;
 #define teamB_penalty_box 80;	// teamB's goalpost is inside this zone
-
-// In other words a larger value would mean closer proximity to teamB's goalpost.
 
 var winner = -1;	// no winner yet at the start
 
