@@ -16,6 +16,7 @@
 
 #define teamA 1;
 #define teamB 2;
+#define successRate(team) if (team == teamA) {100-ball_loc;} else {ball_loc};
 
 // simplified football pitch, only 4 zones. A large value would mean closer proximity to teamB's goalpost.
 
@@ -31,22 +32,13 @@ var winner = -1;	// no winner yet at the start
 
 var ball_loc = teamA_midfield_zone;	// initial ball location is team A midfield zone, because teamA starts the match
 
-teamA_attack = pcase {
-	5: stay -> teamA_attack
-	15: run -> teamA_attack
-	20: dribble -> teamB_tackle
-	40: pass -> teamB_intercept
-	20: shoot -> teamB_goalkeeper_save
+Attack(team, other) = pcase {
+	5: stay -> Attack(team, other)
+	15: run -> Attack(team, other)
+	20: dribble -> Tackle(other, team)
+	40: pass -> Intercept(other, team)
+	20: shoot -> GoalSave(other, team)
 };
-
-teamB_attack = pcase {
-	5: stay -> teamB_attack
-	15: run -> teamB_attack
-	20: dribble -> teamA_tackle
-	40: pass -> teamA_intercept
-	20: shoot -> teamA_goalkeeper_save
-};
-
 
 /*
 	Three types of defenses. All of them can fail to materialise.
@@ -56,59 +48,35 @@ teamB_attack = pcase {
 	Goalkeeper save a shot
 
 */
-
-teamB_tackle = pcase {
-
-	// logic: large ball_loc means ball in teamB's defense zone, more teamB defenders to tackle
-
-	ball_loc: succeed -> teamB_attack
-	100 - ball_loc: fail { ball_loc = call(ball_move_forward, teamA, 1, ball_loc) } -> teamA_attack
-	// ball move forward 1 zone for teamA
+Tackle(team, other) = pcase {
+	call(successRate, team): succeed -> Attack(team, other)
+	100 - call(successRate, team): fail{ball_loc = call(ball_move_forward, other, 1, ball_loc)} -> Attack(other, team)
 };
 
-teamB_intercept = pcase {
-	
-	// logic: large ball_loc means ball in teamB's defense zone, more teamB defenders to intercept
-
-	ball_loc: succeed -> teamB_attack
-	100 - ball_loc: fail { ball_loc = call(ball_move_forward, teamA, 2, ball_loc) } -> teamA_attack
+Intercept(team, other) = pcase {
+	call(successRate, team): succeed -> Attack(team, other)
+	100 - call(successRate, team): fail{ball_loc = call(ball_move_forward, other, 2, ball_loc)} -> Attack(other, team)
+	// ball move forward 1 zone for attacking team
 };
 
-teamB_goalkeeper_save = pcase {
-
+GoalSave(team, other) = pcase {
 	// logic: large ball_loc means ball near teamB's goalpost. chances are, teamB goalkeeper fail to save the close range shot.
-	
-	100 - ball_loc: succeed -> teamB_attack
-	ball_loc: fail { winner = teamA } -> Skip	// teamA scores and hence wins the match!
+	100 - call(successRate, team): succeed -> Attack(team, other)
+	call(successRate, team): fail { winner = other } -> Skip	// teamA scores and hence wins the match!
+	// team scores and hence wins the match!
 };
 
-teamA_tackle = pcase {
-
-	// logic: small ball_loc means ball in teamA's defense zone, more teamA defenders to tackle
-
-	100 - ball_loc: succeed -> teamA_attack
-	ball_loc: fail { ball_loc = call(ball_move_forward, teamB, 1, ball_loc) } -> teamB_attack
+coin_toss = pcase {
+	50: {ball_loc = teamA_midfield_zone} -> Attack(teamA, teamB)
+	50: {ball_loc = teamB_midfield_zone} -> Attack(teamB, teamA)
 };
 
-teamA_intercept = pcase {
-	
-	// logic: small ball_loc means ball in teamA's defense zone, more teamA defenders to intercept
+#assert coin_toss reaches teamA_win with prob;	// prob of teamA winning the match
 
-	100 - ball_loc: succeed -> teamA_attack
-	ball_loc: fail { ball_loc = call(ball_move_forward, teamB, 2, ball_loc) } -> teamB_attack
-};
-
-teamA_goalkeeper_save = pcase {
-
-	// logic: small ball_loc means ball near teamA's goalpost. chances are, teamA goalkeeper fail to save the close range shot.
-	
-	ball_loc: succeed -> teamA_attack
-	100 - ball_loc: fail { winner = teamB } -> Skip	// teamB scores and hence wins the match!
-};
-
-match = teamA_attack;	// teamA starts the match
-
-#assert match reaches teamA_win with prob;	// prob of teamA winning the match
+teamA_start = Attack(teamA, teamB);
+teamB_start = Attack(teamB, teamA);
+#assert teamA_start reaches teamA_win with prob;
+#assert teamB_start reaches teamB_win with prob;
 
 /* 
 	Probability of teamA winning the match is 55.63%
