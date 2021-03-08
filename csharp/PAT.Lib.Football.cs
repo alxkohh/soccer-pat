@@ -54,6 +54,14 @@ namespace PAT.Lib {
 			}
 		}
 		
+		public static int successRate(int team, int ball_loc) {
+			if (team == teamA) {
+				return 100 - ball_loc;
+			} else {
+			return ball_loc;
+			}
+		}
+		
 		public static int ball_move_forward_teamB(int numZones, int loc) {
 			
 			if (numZones == 1) {
