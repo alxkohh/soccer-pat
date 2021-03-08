@@ -10,6 +10,7 @@
 	4. No fouls committed
 	5. Shots are not blocked by defenders. It is always the goalkeeper that tries to save the shot.
 	6. Players will never pass or dribble backwards
+	7. All players are identical
 */
 
 #import "PAT.Lib.Football";
@@ -32,12 +33,24 @@ var winner = -1;	// no winner yet at the start
 
 var ball_loc = teamA_midfield_zone;	// initial ball location is team A midfield zone, because teamA starts the match
 
-Attack(team, other) = pcase {
-	5: stay -> Attack(team, other)
-	15: run -> Attack(team, other)
-	20: dribble -> Tackle(other, team)
-	40: pass -> Intercept(other, team)
-	20: shoot -> GoalSave(other, team)
+Attack(team, other) = case {
+	team == teamA: AttackA(team, other)
+	default: AttackB(team, other)
+};
+
+Tackle(team, other) = case {
+	team == teamA: TackleA(team, other)
+	default: TackleB(team, other)
+};
+
+Intercept(team, other) = case {
+	team == teamA: InterceptA(team, other)
+	default: InterceptB(team, other)
+};
+
+Save(team, other) = case {
+	team == teamA: SaveA(team, other)
+	default: SaveB(team, other)
 };
 
 /*
@@ -48,35 +61,71 @@ Attack(team, other) = pcase {
 	Goalkeeper save a shot
 
 */
-Tackle(team, other) = pcase {
+TackleDefault(team, other) = tackle -> pcase {
 	call(successRate, team): succeed -> Attack(team, other)
 	100 - call(successRate, team): fail{ball_loc = call(ball_move_forward, other, 1, ball_loc)} -> Attack(other, team)
 };
 
-Intercept(team, other) = pcase {
+InterceptDefault(team, other) = intercept -> pcase {
 	call(successRate, team): succeed -> Attack(team, other)
 	100 - call(successRate, team): fail{ball_loc = call(ball_move_forward, other, 2, ball_loc)} -> Attack(other, team)
 	// ball move forward 1 zone for attacking team
 };
 
-GoalSave(team, other) = pcase {
+SaveDefault(team, other) = save -> pcase {
 	// logic: large ball_loc means ball near teamB's goalpost. chances are, teamB goalkeeper fail to save the close range shot.
 	100 - call(successRate, team): succeed -> Attack(team, other)
 	call(successRate, team): fail { winner = other } -> Skip	// teamA scores and hence wins the match!
 	// team scores and hence wins the match!
 };
 
+AttackDefault(team, other) = pcase {
+	5: stay -> Attack(team, other)
+	15: run -> Attack(team, other)
+	20: dribble -> Tackle(other, team)
+	40: pass -> Intercept(other, team)
+	20: shoot -> Save(other, team)
+};
+
+AttackLongPass(team, other) = pcase {
+	10: dribble -> Tackle(other, team)
+	60: pass -> Intercept(other, team)
+	30: shoot -> Save(other, team)
+};
+
+AttackOnlyShoot(team, other) = pcase {
+	100: shoot -> Save(other, team)
+};
+
+AttackPassShoot(team, other) = pcase {
+	50: pass -> Intercept(other, team)
+	100: shoot -> Save(other, team)
+};
+
+// Team Configuration
+
+AttackA(team, other) = AttackDefault(team, other);
+TackleA(team, other) = TackleDefault(team, other);
+InterceptA(team, other) = InterceptDefault(team, other);
+SaveA(team, other) = SaveDefault(team, other);
+
+AttackB(team, other) = AttackDefault(team, other);
+TackleB(team, other) = TackleDefault(team, other);
+InterceptB(team, other) = InterceptDefault(team, other);
+SaveB(team, other) = SaveDefault(team, other);
+
+teamA_start = {ball_loc = teamA_midfield_zone} -> Attack(teamA, teamB);
+teamB_start = {ball_loc = teamB_midfield_zone} -> Attack(teamB, teamA);
+
+#assert teamA_start reaches teamA_win with prob;
+#assert teamB_start reaches teamB_win with prob;
+
 coin_toss = pcase {
-	50: {ball_loc = teamA_midfield_zone} -> Attack(teamA, teamB)
-	50: {ball_loc = teamB_midfield_zone} -> Attack(teamB, teamA)
+	50: teamA_start
+	50: teamB_start
 };
 
 #assert coin_toss reaches teamA_win with prob;	// prob of teamA winning the match
-
-teamA_start = Attack(teamA, teamB);
-teamB_start = Attack(teamB, teamA);
-#assert teamA_start reaches teamA_win with prob;
-#assert teamB_start reaches teamB_win with prob;
 
 /* 
 	Probability of teamA winning the match is 55.63%
