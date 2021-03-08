@@ -17,7 +17,6 @@
 
 #define teamA 1;
 #define teamB 2;
-#define successRate(team) if (team == teamA) {100-ball_loc;} else {ball_loc};
 
 // simplified football pitch, only 4 zones. A large value would mean closer proximity to teamB's goalpost.
 
@@ -62,20 +61,20 @@ Save(team, other) = case {
 
 */
 TackleDefault(team, other) = tackle -> pcase {
-	call(successRate, team): succeed -> Attack(team, other)
-	100 - call(successRate, team): fail{ball_loc = call(ball_move_forward, other, 1, ball_loc)} -> Attack(other, team)
+	call(successRate, team, ball_loc): succeed -> Attack(team, other)
+	100 - call(successRate, team, ball_loc): fail{ball_loc = call(ball_move_forward, other, 1, ball_loc)} -> Attack(other, team)
 };
 
 InterceptDefault(team, other) = intercept -> pcase {
-	call(successRate, team): succeed -> Attack(team, other)
-	100 - call(successRate, team): fail{ball_loc = call(ball_move_forward, other, 2, ball_loc)} -> Attack(other, team)
+	call(successRate, team, ball_loc): succeed -> Attack(team, other)
+	100 - call(successRate, team, ball_loc): fail{ball_loc = call(ball_move_forward, other, 2, ball_loc)} -> Attack(other, team)
 	// ball move forward 1 zone for attacking team
 };
 
 SaveDefault(team, other) = save -> pcase {
 	// logic: large ball_loc means ball near teamB's goalpost. chances are, teamB goalkeeper fail to save the close range shot.
-	100 - call(successRate, team): succeed -> Attack(team, other)
-	call(successRate, team): fail { winner = other } -> Skip	// teamA scores and hence wins the match!
+	100 - call(successRate, team, ball_loc): succeed -> Attack(team, other)
+	call(successRate, team, ball_loc): fail { winner = other } -> Skip	// teamA scores and hence wins the match!
 	// team scores and hence wins the match!
 };
 
@@ -104,7 +103,7 @@ AttackPassShoot(team, other) = pcase {
 
 // Team Configuration
 
-AttackA(team, other) = AttackDefault(team, other);
+AttackA(team, other) = AttackOnlyShoot(team, other);
 TackleA(team, other) = TackleDefault(team, other);
 InterceptA(team, other) = InterceptDefault(team, other);
 SaveA(team, other) = SaveDefault(team, other);
