@@ -113,8 +113,8 @@ TackleB(team, other) = TackleDefault(team, other);
 InterceptB(team, other) = InterceptDefault(team, other);
 SaveB(team, other) = SaveDefault(team, other);
 
-teamA_start = {ball_loc = teamA_midfield_zone} -> Attack(teamA, teamB);
-teamB_start = {ball_loc = teamB_midfield_zone} -> Attack(teamB, teamA);
+teamA_start = { ball_loc = teamA_midfield_zone } -> Attack(teamA, teamB);
+teamB_start = { ball_loc = teamB_midfield_zone } -> Attack(teamB, teamA);
 
 #assert teamA_start reaches teamA_win with prob;
 #assert teamB_start reaches teamB_win with prob;
@@ -124,14 +124,4 @@ coin_toss = pcase {
 	50: teamB_start
 };
 
-#assert coin_toss reaches teamA_win with prob;	// prob of teamA winning the match
-
-/* 
-	Probability of teamA winning the match is 55.63%
-	
-	That is to say, teamA has a greater chance of winning the match compared to teamB! (44.37%)
-	
-	Why is that so?
-	Observe the match conditions - teamA gets to start the match, at teamA_midfield_zone.
-	Apparently, that gives teamA a slight advantage.
-*/
+#assert coin_toss reaches teamA_win with prob;
