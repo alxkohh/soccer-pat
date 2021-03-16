@@ -15,8 +15,9 @@
 
 #import "PAT.Lib.Football";
 
-#define teamA 1;
-#define teamB 2;
+// changed. previously teamA is 1, teamB is 2
+#define teamA -1;
+#define teamB 1;
 
 // simplified football pitch, only 4 zones. A large value would mean closer proximity to teamB's goalpost.
 
@@ -25,96 +26,126 @@
 #define teamB_midfield_zone 60;
 #define teamB_penalty_box 80;	// teamB's goalpost is inside this zone
 
-var winner = -1;	// no winner yet at the start
+// no winner yet at the start
+var winner = 0;
 
 #define teamA_win winner == teamA;
 #define teamB_win winner == teamB;
 
 var ball_loc = teamA_midfield_zone;	// initial ball location is team A midfield zone, because teamA starts the match
 
-Attack(team, other) = case {
-	team == teamA: AttackA(team, other)
-	default: AttackB(team, other)
+
+/* 
+	Famous football strategies, can do a simple google search to find out!
+	I used 1000 2000 etc to avoid clashing with values declared on top.
+	
+	TODO: add more strategies! -> Alex
+*/
+#define tiki_taka 1000;		// quick short passes
+#define route_one 2000;		// whack the ball upfield, basically long pass tactic
+
+/* 
+	Attack strategy used by each team.
+	The good thing about this design is we can conveniently do re-assignment
+	on this 2 global vars.
+*/
+var teamA_attack_strategy = tiki_taka;
+var teamB_attack_strategy = route_one;
+
+
+// With all the variables and macros out of the way, the model begins now
+
+teamA_attack = attack(teamA);
+teamB_attack = attack(teamB);
+
+attack(attacking_team) = case {
+	
+	attacking_team == teamA: attack_with_strategy(teamA, teamA_attack_strategy)
+	attacking_team == teamB: attack_with_strategy(teamB, teamB_attack_strategy)
+	default				   : Skip	// error case! 
 };
 
-Tackle(team, other) = case {
-	team == teamA: TackleA(team, other)
-	default: TackleB(team, other)
+attack_with_strategy(attacking_team, attack_strategy) = case {
+	
+	attack_strategy == tiki_taka: attack_tiki_taka(attacking_team)
+	attack_strategy == route_one: attack_route_one(attacking_team)
+	default						: Skip	// error case!
 };
 
-Intercept(team, other) = case {
-	team == teamA: InterceptA(team, other)
-	default: InterceptB(team, other)
+attack_tiki_taka(attacking_team) = pcase {
+
+	5 : stay -> attack_tiki_taka(attacking_team)
+	10: run -> attack_tiki_taka(attacking_team)
+	50: short_pass -> intercept_short_pass( call(opponent_of, attacking_team) )		// read as "opponent of the attacking team"
+	5 : long_pass -> intercept_long_pass( call(opponent_of, attacking_team) )
+	10: dribble -> tackle( call(opponent_of, attacking_team) )
+	20: shoot -> goalkeeper_save( call(opponent_of, attacking_team) )
+	
+	/* 
+		Alfred: consider doing 
+		
+		5: stay { teamA_strategy = route_one } -> attack(attacking_team)
+		
+		to tweak the strategy midway through the game
+	*/
 };
 
-Save(team, other) = case {
-	team == teamA: SaveA(team, other)
-	default: SaveB(team, other)
+attack_route_one(attacking_team) = pcase {
+
+	10: stay -> attack_route_one(attacking_team)
+	10: run -> attack_route_one(attacking_team)
+	5 : short_pass -> intercept_short_pass( call(opponent_of, attacking_team) )
+	50: long_pass -> intercept_long_pass( call(opponent_of, attacking_team) )
+	5 : dribble -> tackle( call(opponent_of, attacking_team) )
+	20: shoot -> goalkeeper_save( call(opponent_of, attacking_team) )
 };
+
 
 /*
-	Three types of defenses. All of them can fail to materialise.
+	Four types of defenses. All of them can fail to materialise.
 	
-	Tackle a dribbling opponent
-	Intercept a pass
-	Goalkeeper save a shot
+	Currently, intercept_short_pass and tackle share the same implementation
 
+	Note:
+	For our context, there is no concept called "defending_strategy". And, we should probably leave it at that.
+	Because a defending action is really just to counter against a specific type of attacking action.
+	eg. tackle against a dribble, etc
+	
+	^ More on the football talk can be done over discord but for now let's not add defending strategies.
 */
-TackleDefault(team, other) = tackle -> pcase {
-	call(successRate, team, ball_loc): succeed -> Attack(team, other)
-	100 - call(successRate, team, ball_loc): fail{ball_loc = call(ball_move_forward, other, 1, ball_loc)} -> Attack(other, team)
+
+intercept_long_pass(defending_team) = pcase {
+	
+	call(success_rate, defending_team, ball_loc)	  : succeed -> attack(defending_team)	// change of possession
+	100 - call(success_rate, defending_team, ball_loc): fail { ball_loc = call(ball_move_forward, call(opponent_of, defending_team), 2, ball_loc) } -> attack( call(opponent_of, defending_team) ) 	// NO change of possession, ball move forward
 };
 
-InterceptDefault(team, other) = intercept -> pcase {
-	call(successRate, team, ball_loc): succeed -> Attack(team, other)
-	100 - call(successRate, team, ball_loc): fail{ball_loc = call(ball_move_forward, other, 2, ball_loc)} -> Attack(other, team)
-	// ball move forward 1 zone for attacking team
+
+intercept_short_pass(defending_team) = pcase {
+	
+	call(success_rate, defending_team, ball_loc)	  : succeed -> attack(defending_team)	// change of possession
+	100 - call(success_rate, defending_team, ball_loc): fail { ball_loc = call(ball_move_forward, call(opponent_of, defending_team), 1, ball_loc) } -> attack( call(opponent_of, defending_team) ) 	// NO change of possession, ball move forward
 };
 
-SaveDefault(team, other) = save -> pcase {
-	// logic: large ball_loc means ball near teamB's goalpost. chances are, teamB goalkeeper fail to save the close range shot.
-	100 - call(successRate, team, ball_loc): succeed -> Attack(team, other)
-	call(successRate, team, ball_loc): fail { winner = other } -> Skip	// teamA scores and hence wins the match!
-	// team scores and hence wins the match!
+tackle(defending_team) = pcase {
+	
+	call(success_rate, defending_team, ball_loc)	  : succeed -> attack(defending_team)	// change of possession
+	100 - call(success_rate, defending_team, ball_loc): fail { ball_loc = call(ball_move_forward, call(opponent_of, defending_team), 1, ball_loc) }-> attack( call(opponent_of, defending_team) ) 	// NO change of possession, ball move forward
 };
 
-AttackDefault(team, other) = pcase {
-	5: stay -> Attack(team, other)
-	15: run -> Attack(team, other)
-	20: dribble -> Tackle(other, team)
-	40: pass -> Intercept(other, team)
-	20: shoot -> Save(other, team)
+goalkeeper_save(defending_team) = pcase {
+
+	call(success_rate, defending_team, ball_loc)	  : succeed -> attack(defending_team)	// change of possession
+	100 - call(success_rate, defending_team, ball_loc): fail { winner = call(opponent_of, defending_team) } -> Skip	// game ends because first team to score wins
+	
+	// Qing Zhou: Consider incrementing the goal count in the 'fail' case. (Instead of ending the game)
 };
 
-AttackLongPass(team, other) = pcase {
-	10: dribble -> Tackle(other, team)
-	60: pass -> Intercept(other, team)
-	30: shoot -> Save(other, team)
-};
 
-AttackOnlyShoot(team, other) = pcase {
-	100: shoot -> Save(other, team)
-};
+// Run a few assertions, to test the model above
 
-AttackPassShoot(team, other) = pcase {
-	50: pass -> Intercept(other, team)
-	100: shoot -> Save(other, team)
-};
-
-// Team Configuration
-
-AttackA(team, other) = AttackOnlyShoot(team, other);
-TackleA(team, other) = TackleDefault(team, other);
-InterceptA(team, other) = InterceptDefault(team, other);
-SaveA(team, other) = SaveDefault(team, other);
-
-AttackB(team, other) = AttackDefault(team, other);
-TackleB(team, other) = TackleDefault(team, other);
-InterceptB(team, other) = InterceptDefault(team, other);
-SaveB(team, other) = SaveDefault(team, other);
-
-teamA_start = {ball_loc = teamA_midfield_zone} -> Attack(teamA, teamB);
-teamB_start = {ball_loc = teamB_midfield_zone} -> Attack(teamB, teamA);
+teamA_start = { ball_loc = teamA_midfield_zone } -> teamA_attack;
+teamB_start = { ball_loc = teamB_midfield_zone } -> teamB_attack;
 
 #assert teamA_start reaches teamA_win with prob;
 #assert teamB_start reaches teamB_win with prob;
@@ -124,14 +155,5 @@ coin_toss = pcase {
 	50: teamB_start
 };
 
-#assert coin_toss reaches teamA_win with prob;	// prob of teamA winning the match
-
-/* 
-	Probability of teamA winning the match is 55.63%
-	
-	That is to say, teamA has a greater chance of winning the match compared to teamB! (44.37%)
-	
-	Why is that so?
-	Observe the match conditions - teamA gets to start the match, at teamA_midfield_zone.
-	Apparently, that gives teamA a slight advantage.
-*/
+#assert coin_toss reaches teamA_win with prob;
+#assert coin_toss reaches teamB_win with prob;
