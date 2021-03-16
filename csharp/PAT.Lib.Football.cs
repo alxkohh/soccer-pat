@@ -17,7 +17,19 @@ namespace PAT.Lib {
 	
     public class Football {
 	     
-	 	private static int teamA = 1;
+	 	private static int teamA = -1;
+	 	
+	 	public static int opponent_of(int team) {
+	 		return -1 * team;
+	 	}
+	 	
+	 	public static int success_rate(int team, int ball_loc) {
+			if (team == teamA) {
+				return 100 - ball_loc;
+			} else {
+				return ball_loc;
+			}
+		}
 	    
 	    // ball_move_forward(teamA, 2, ball_loc) means the ball move forward 2 zones for teamA. new ball location is returned
 		public static int ball_move_forward(int team, int numZones, int loc) {
@@ -51,14 +63,6 @@ namespace PAT.Lib {
 				} else {
 					return new_loc;
 				}
-			}
-		}
-		
-		public static int successRate(int team, int ball_loc) {
-			if (team == teamA) {
-				return 100 - ball_loc;
-			} else {
-			return ball_loc;
 			}
 		}
 		
