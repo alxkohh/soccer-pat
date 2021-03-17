@@ -52,6 +52,11 @@ var ball_loc = teamA_midfield_zone;	// initial ball location is team A midfield 
 var teamA_attack_strategy = tiki_taka;
 var teamB_attack_strategy = route_one;
 
+/*
+Add timer into the football game. Once timer hits a unit of 90, the game ends.
+*/
+var time = 0;
+#define time_up time == 90;
 
 // With all the variables and macros out of the way, the model begins now
 
@@ -72,32 +77,29 @@ attack_with_strategy(attacking_team, attack_strategy) = case {
 	default						: Skip	// error case!
 };
 
-attack_tiki_taka(attacking_team) = pcase {
-
-	5 : stay -> attack_tiki_taka(attacking_team)
-	10: run -> attack_tiki_taka(attacking_team)
-	50: short_pass -> intercept_short_pass( call(opponent_of, attacking_team) )		// read as "opponent of the attacking team"
-	5 : long_pass -> intercept_long_pass( call(opponent_of, attacking_team) )
-	10: dribble -> tackle( call(opponent_of, attacking_team) )
-	20: shoot -> goalkeeper_save( call(opponent_of, attacking_team) )
-	
-	/* 
-		Alfred: consider doing 
-		
-		5: stay { teamA_strategy = route_one } -> attack(attacking_team)
-		
-		to tweak the strategy midway through the game
-	*/
-};
-
-attack_route_one(attacking_team) = pcase {
-
-	10: stay -> attack_route_one(attacking_team)
-	10: run -> attack_route_one(attacking_team)
-	5 : short_pass -> intercept_short_pass( call(opponent_of, attacking_team) )
-	50: long_pass -> intercept_long_pass( call(opponent_of, attacking_team) )
-	5 : dribble -> tackle( call(opponent_of, attacking_team) )
-	20: shoot -> goalkeeper_save( call(opponent_of, attacking_team) )
+attack_tiki_taka(attacking_team) = case {
+	time_up: Skip
+	default: pcase {
+  		5 : stay { time++ } -> attack(attacking_team)
+  		10: run { time++ } -> attack(attacking_team)
+  		50: short_pass { time++ }-> intercept_short_pass( call(opponent_of, attacking_team) )    // read as "opponent of the attacking team"
+  		5 : long_pass { time++ } -> intercept_long_pass( call(opponent_of, attacking_team) )
+  		10: dribble { time++ } -> tackle( call(opponent_of, attacking_team) )
+  		20: shoot { time++ } -> goalkeeper_save( call(opponent_of, attacking_team) )
+  	}
+ };
+  
+//	tracktime{if (call(checkTimer)) {endGame -> Skip} else
+attack_route_one(attacking_team) = case {
+	time_up: Skip
+	default: pcase {
+		10: stay {time++} -> attack_route_one(attacking_team)
+		10: run {time++} -> attack_route_one(attacking_team)
+		5 : short_pass {time++} -> intercept_short_pass( call(opponent_of, attacking_team) )
+		50: long_pass {time++} -> intercept_long_pass( call(opponent_of, attacking_team) )
+		5 : dribble {time++} -> tackle( call(opponent_of, attacking_team) )
+		20: shoot {time++} -> goalkeeper_save( call(opponent_of, attacking_team) )
+	}
 };
 
 
@@ -114,30 +116,37 @@ attack_route_one(attacking_team) = pcase {
 	^ More on the football talk can be done over discord but for now let's not add defending strategies.
 */
 
-intercept_long_pass(defending_team) = pcase {
-	
-	call(success_rate, defending_team, ball_loc)	  : succeed -> attack(defending_team)	// change of possession
-	100 - call(success_rate, defending_team, ball_loc): fail { ball_loc = call(ball_move_forward, call(opponent_of, defending_team), 2, ball_loc) } -> attack( call(opponent_of, defending_team) ) 	// NO change of possession, ball move forward
+intercept_long_pass(defending_team) = case {
+	time_up: Skip
+	default: pcase {
+		call(success_rate, defending_team, ball_loc)	  : succeed {time++} -> attack(defending_team)	// change of possession
+		100 - call(success_rate, defending_team, ball_loc): fail { ball_loc = call(ball_move_forward, call(opponent_of, defending_team), 2, ball_loc) } -> {time++} -> attack( call(opponent_of, defending_team) ) 	// NO change of possession, ball move forward
+	}
 };
 
 
-intercept_short_pass(defending_team) = pcase {
-	
-	call(success_rate, defending_team, ball_loc)	  : succeed -> attack(defending_team)	// change of possession
-	100 - call(success_rate, defending_team, ball_loc): fail { ball_loc = call(ball_move_forward, call(opponent_of, defending_team), 1, ball_loc) } -> attack( call(opponent_of, defending_team) ) 	// NO change of possession, ball move forward
+intercept_short_pass(defending_team) = case {
+	time_up: Skip
+	default: pcase {
+		call(success_rate, defending_team, ball_loc)	  : succeed {time++} -> attack(defending_team)	// change of possession
+		100 - call(success_rate, defending_team, ball_loc): fail { ball_loc = call(ball_move_forward, call(opponent_of, defending_team), 1, ball_loc) } -> {time++} -> attack( call(opponent_of, defending_team) ) 	// NO change of possession, ball move forward
+	}
 };
 
-tackle(defending_team) = pcase {
-	
-	call(success_rate, defending_team, ball_loc)	  : succeed -> attack(defending_team)	// change of possession
-	100 - call(success_rate, defending_team, ball_loc): fail { ball_loc = call(ball_move_forward, call(opponent_of, defending_team), 1, ball_loc) }-> attack( call(opponent_of, defending_team) ) 	// NO change of possession, ball move forward
+tackle(defending_team) = case {
+	time_up: Skip
+	default: pcase {
+		call(success_rate, defending_team, ball_loc)	  : succeed {time++} -> attack(defending_team)	// change of possession
+		100 - call(success_rate, defending_team, ball_loc): fail { ball_loc = call(ball_move_forward, call(opponent_of, defending_team), 1, ball_loc) }-> {time++} -> attack( call(opponent_of, defending_team) ) 	// NO change of possession, ball move forward
+	}
 };
 
-goalkeeper_save(defending_team) = pcase {
-
-	call(success_rate, defending_team, ball_loc)	  : succeed -> attack(defending_team)	// change of possession
-	100 - call(success_rate, defending_team, ball_loc): fail { winner = call(opponent_of, defending_team) } -> Skip	// game ends because first team to score wins
-	
+goalkeeper_save(defending_team) = case {
+	time_up: Skip
+	default: pcase {
+		call(success_rate, defending_team, ball_loc)	  : succeed {time++} -> attack(defending_team)	// change of possession
+		100 - call(success_rate, defending_team, ball_loc): fail { winner = call(opponent_of, defending_team) } -> {time++} -> Skip	// game ends because first team to score wins
+	}
 	// Qing Zhou: Consider incrementing the goal count in the 'fail' case. (Instead of ending the game)
 };
 
