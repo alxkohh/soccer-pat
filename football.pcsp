@@ -52,6 +52,9 @@ var ball_loc = teamA_midfield_zone;	// initial ball location is team A midfield 
 var teamA_attack_strategy = tiki_taka;
 var teamB_attack_strategy = route_one;
 
+var max_goals = 2;
+var teamA_score = 0;
+var teamB_score = 0;
 
 // With all the variables and macros out of the way, the model begins now
 
@@ -136,10 +139,20 @@ tackle(defending_team) = pcase {
 goalkeeper_save(defending_team) = pcase {
 
 	call(success_rate, defending_team, ball_loc)	  : succeed -> attack(defending_team)	// change of possession
-	100 - call(success_rate, defending_team, ball_loc): fail { winner = call(opponent_of, defending_team) } -> Skip	// game ends because first team to score wins
+	100 - call(success_rate, defending_team, ball_loc): fail { if(defending_team == 1) {teamA_score++} else {teamB_score++} } -> check_score(call(opponent_of, defending_team))	// game ends because first team to score wins
 	
 	// Qing Zhou: Consider incrementing the goal count in the 'fail' case. (Instead of ending the game)
 };
+
+check_score(scoring_team) = case{
+	teamA_score == max_goals : succeed{winner = scoring_team} -> Skip
+	teamB_score == max_goals : succeed{winner = scoring_team} -> Skip
+	default: fail{if (scoring_team == teamA){ball_loc = teamB_midfield_zone} else {ball_loc = teamA_midfield_zone}} -> attack(call(opponent_of, scoring_team))
+
+
+
+};
+
 
 
 // Run a few assertions, to test the model above
@@ -148,6 +161,8 @@ teamA_start = { ball_loc = teamA_midfield_zone } -> teamA_attack;
 teamB_start = { ball_loc = teamB_midfield_zone } -> teamB_attack;
 
 #assert teamA_start reaches teamA_win with prob;
+#assert teamA_start reaches teamB_win with prob;
+
 #assert teamB_start reaches teamB_win with prob;
 
 coin_toss = pcase {
