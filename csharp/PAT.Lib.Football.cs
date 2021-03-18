@@ -18,6 +18,11 @@ namespace PAT.Lib {
     public class Football {
 	     
 	 	private static int teamA = -1;
+	 	private static int zones = 10;
+	 	
+	 	public static void setZones(int _zones) {
+	 		zones = _zones;
+	 	}
 	 	
 	 	public static int opponent_of(int team) {
 	 		return -1 * team;
@@ -25,9 +30,9 @@ namespace PAT.Lib {
 	 	
 	 	public static int success_rate(int team, int ball_loc) {
 			if (team == teamA) {
-				return 100 - ball_loc;
+				return 100 - ball_loc * 100 / zones;
 			} else {
-				return ball_loc;
+				return ball_loc * 100 / zones;
 			}
 		}
 	    
@@ -42,52 +47,20 @@ namespace PAT.Lib {
 		}
 	    
 	    public static int ball_move_forward_teamA(int numZones, int loc) {
-			
-			if (numZones == 1) {
-				
-				int new_loc = loc + 20;
-				
-				// the furthest teamA can go is 80
-				if (new_loc > 80) {
-					return 80;
-				} else {
-					return new_loc;
-				}
-			} else {	// numZones == 2
-				
-				int new_loc = loc + 40;
-				
-				// the furthest teamA can go is 80
-				if (new_loc > 80) {
-					return 80;
-				} else {
-					return new_loc;
-				}
+			int new_loc = loc + numZones;
+			if (new_loc > zones-2) {
+				return zones-2;
+			} else {
+				return new_loc;
 			}
 		}
 		
 		public static int ball_move_forward_teamB(int numZones, int loc) {
-			
-			if (numZones == 1) {
-				
-				int new_loc = loc - 20;
-				
-				// the furthest teamB can go is 20
-				if (new_loc < 20) {
-					return 20;
-				} else {
-					return new_loc;
-				}
-			} else {	// numZones == 2
-				
-				int new_loc = loc - 40;
-				
-				// the furthest teamB can go is 20
-				if (new_loc < 20) {
-					return 20;
-				} else {
-					return new_loc;
-				}
+			int new_loc = loc - numZones;
+			if (new_loc < 2) {
+				return 2;
+			} else {
+				return new_loc;
 			}
 		} 
 	     
