@@ -29,8 +29,12 @@
 // no winner yet at the start
 var winner = 0;
 
+#define time_limit 360; // each time unit is 15s
+hvar time = 0;
+
 #define teamA_win winner == teamA;
 #define teamB_win winner == teamB;
+#define timeout time == time_limit;
 
 var ball_loc = teamA_midfield_zone;	// initial ball location is team A midfield zone, because teamA starts the match
 
@@ -58,12 +62,14 @@ var teamB_attack_strategy = route_one;
 teamA_attack = attack(teamA);
 teamB_attack = attack(teamB);
 
-attack(attacking_team) = case {
-	
-	attacking_team == teamA: attack_with_strategy(teamA, teamA_attack_strategy)
-	attacking_team == teamB: attack_with_strategy(teamB, teamB_attack_strategy)
-	default				   : Skip	// error case! 
-};
+attack(attacking_team) = timer{time++;} -> (
+	[time < time_limit] case {
+		attacking_team == teamA: attack_with_strategy(teamA, teamA_attack_strategy)
+		attacking_team == teamB: attack_with_strategy(teamB, teamB_attack_strategy)
+		default				   : Skip	// error case! 
+	} []
+	[time == time_limit] Skip
+);
 
 attack_with_strategy(attacking_team, attack_strategy) = case {
 	
@@ -157,3 +163,5 @@ coin_toss = pcase {
 
 #assert coin_toss reaches teamA_win with prob;
 #assert coin_toss reaches teamB_win with prob;
+
+#assert coin_toss reaches timeout with prob;
