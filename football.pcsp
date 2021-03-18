@@ -80,8 +80,8 @@ attack_with_strategy(attacking_team, attack_strategy) = case {
 attack_tiki_taka(attacking_team) = case {
 	time_up: Skip
 	default: pcase {
-  		5 : stay { time++ } -> attack(attacking_team)
-  		10: run { time++ } -> attack(attacking_team)
+  		5 : stay { time++ } -> attack_tiki_taka(attacking_team)
+  		10: run { time++ } -> attack_tiki_taka(attacking_team)
   		50: short_pass { time++ }-> intercept_short_pass( call(opponent_of, attacking_team) )    // read as "opponent of the attacking team"
   		5 : long_pass { time++ } -> intercept_long_pass( call(opponent_of, attacking_team) )
   		10: dribble { time++ } -> tackle( call(opponent_of, attacking_team) )
