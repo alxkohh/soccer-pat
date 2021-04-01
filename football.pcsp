@@ -33,13 +33,13 @@ var ball_loc = teamA_midfield_zone;	// for the case where teamA starts the match
 
 	tiki taka - quick short passes (barcelona, arsenal | man city)
 	route one - long ball upfield, eg. to target man (england, stoke city | many weak teams)
-	star player - pass the ball to star player, watch him work his magic (messi, ronaldo, hazard | neymar, mbappe, son)
+	star dribbler - pass the ball to star dribbler, watch him weave through opponents (messi, ronaldo, hazard | neymar, mbappe, son)
 	
-	For our model, star player is the best strategy. route one is the worst. -> Same as real life
+	For our model, star dribbler is the best strategy. route one is the worst. -> Same as real life
 */
 #define tiki_taka 1000;
 #define route_one 2000;
-#define star_player 3000;
+#define star_dribbler 3000;
 
 // Set each team's attack strategy
 var teamA_attack_strategy = route_one;
@@ -76,7 +76,7 @@ attack_with_strategy(attacking_team, attack_strategy) = case {
 	
 	attack_strategy == tiki_taka: attack_tiki_taka(attacking_team)
 	attack_strategy == route_one: attack_route_one(attacking_team)
-	attack_strategy == star_player: attack_star_player(attacking_team)
+	attack_strategy == star_dribbler: attack_star_dribbler(attacking_team)
 	default: Skip	// error case!
 };
 
@@ -100,7 +100,7 @@ attack_route_one(attacking_team) = pcase {
 	20: shoot -> goalkeeper_save( call(opponent_of, attacking_team) )
 };
 
-attack_star_player(attacking_team) = pcase {
+attack_star_dribbler(attacking_team) = pcase {
 
 	5 : stay -> attack(attacking_team)
 	20: run -> attack(attacking_team)
