@@ -28,7 +28,7 @@
 // no winner yet at the start
 var winner = 2;
 
-#define time_limit 20; // each time unit is 15s
+#define time_limit 60; // each time unit is 15s
 var time = 0;
 
 
@@ -157,10 +157,12 @@ tackle(defending_team) = pcase {
 goalkeeper_save(defending_team) = pcase {
 
 	call(success_rate, defending_team, ball_loc)	  : succeed -> attack(defending_team)	// change of possession
-	100 - call(success_rate, defending_team, ball_loc): fail { goalDiff = goalDiff + defending_team;
-																if (goalDiff < -3 || goalDiff > 3) goalSkip = true;  
-																if(defending_team == teamB) {ball_loc=teamB_midfield_zone;} else {ball_loc=teamA_midfield_zone;};
-																} -> attack(defending_team)	// game ends because first team to score wins
+	100 - call(success_rate, defending_team, ball_loc): 
+	fail {
+		goalDiff = goalDiff + defending_team;
+		if (goalDiff < -3 || goalDiff > 3) goalSkip = true;  
+		if(defending_team == teamB) {ball_loc=teamB_midfield_zone;} else {ball_loc=teamA_midfield_zone;};
+		} -> attack(defending_team)	// game ends because first team to score wins
 	
 	// Qing Zhou: Consider incrementing the goal count in the 'fail' case. (Instead of ending the game)
 };
