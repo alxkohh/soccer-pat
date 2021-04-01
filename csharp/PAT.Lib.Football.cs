@@ -17,7 +17,7 @@ namespace PAT.Lib {
 	
     public class Football {
 	     
-	 	private static int teamA = -1;
+	 	private static int teamA = 0;
 	 	private static int zones = 10;
 	 	
 	 	public static void setZones(int _zones) {
@@ -25,7 +25,7 @@ namespace PAT.Lib {
 	 	}
 	 	
 	 	public static int opponent_of(int team) {
-	 		return -1 * team;
+	 		return 1 - team;
 	 	}
 	 	
 	 	public static int success_rate(int team, int ball_loc) {
