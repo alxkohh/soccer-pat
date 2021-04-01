@@ -22,7 +22,7 @@
 #define teamB_midfield_zone 60;
 #define teamB_penalty_box 80;	// teamB's goalpost is inside this zone
 
-#define time_limit 30;
+#define time_limit 40;
 var time = 0;
 
 var ball_loc = teamA_midfield_zone;	// for the case where teamA starts the match
@@ -47,7 +47,6 @@ var teamB_attack_strategy = tiki_taka;
 
 var teamA_score = 0;
 var teamB_score = 0;
-//hvar goalSkip = false;
 
 #define timeout time == time_limit;
 #define match_end timeout;
@@ -171,6 +170,9 @@ coin_toss = pcase {
 	50: teamB_start
 };
 
+#define teamA_score_below_four teamA_score < 4 && match_end;
+
 #assert coin_toss reaches teamA_win with prob;
 #assert coin_toss reaches teamB_win with prob;
 #assert coin_toss reaches draw with prob;
+#assert coin_toss reaches teamA_score_below_four with prob;
