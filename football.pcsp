@@ -35,11 +35,11 @@ var ball_loc = teamA_midfield_zone;	// initial ball location is team A midfield 
 
 
 /* 
-	A few of the popular attack strategies used by teams in real life (past/present).
+	A few of the popular attack strategies used by teams in real life (past | present).
 
-	tiki taka - quick short passes
-	route one - long ball upfield, eg. to target man
-	star dribbler - pass the ball to star dribbler, watch him weave past opponents
+	tiki taka - quick short passes (barcelona, arsenal | man city)
+	route one - long ball upfield, eg. to target man (england, stoke city | many weak teams)
+	star dribbler - pass the ball to star dribbler, watch him weave past opponents (messi, ronaldo, hazard | neymar, mbappe, son)
 */
 #define tiki_taka 1000;
 #define route_one 2000;
