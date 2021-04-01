@@ -25,10 +25,8 @@
 #define teamB_midfield_zone 60;
 #define teamB_penalty_box 80;	// teamB's goalpost is inside this zone
 
-// no winner yet at the start
-var winner = 2;
 
-#define time_limit 60; // each time unit is 15s
+#define time_limit 30; // each time unit is 15s
 var time = 0;
 
 
@@ -54,15 +52,16 @@ var teamA_attack_strategy = tiki_taka;
 var teamB_attack_strategy = route_one;
 
 
-var goalDiff = 0;
+var teamA_score = 0;
+var teamB_score = 0;
 hvar goalSkip = false;
 
 #define timeout time == time_limit;
 #define match_end timeout || goalSkip;
 
-#define teamA_win match_end && goalDiff > 0;
-#define teamB_win match_end && goalDiff < 0;
-#define draw match_end && goalDiff == 0;
+#define teamA_win match_end && teamA_score > teamB_score;
+#define teamB_win match_end && teamA_score < teamB_score;
+#define draw match_end && teamA_score == teamB_score;
 
 
 
@@ -80,11 +79,6 @@ attack(attacking_team) = timer{time++;} -> (
 	} []
 	[match_end] Skip 
 );
-
-test() = case {
- time == time_limit: succeed{winner = teamA} -> Skip
- default: succeed{winner=teamB} -> Skip
-};
 
 attack_with_strategy(attacking_team, attack_strategy) = case {
 	
@@ -159,9 +153,9 @@ goalkeeper_save(defending_team) = pcase {
 	call(success_rate, defending_team, ball_loc)	  : succeed -> attack(defending_team)	// change of possession
 	100 - call(success_rate, defending_team, ball_loc): 
 	fail {
-		goalDiff = goalDiff + defending_team;
-		if (goalDiff < -3 || goalDiff > 3) goalSkip = true;  
-		if(defending_team == teamB) {ball_loc=teamB_midfield_zone;} else {ball_loc=teamA_midfield_zone;};
+
+		if (teamA_score - teamB_score < -3 || teamA_score - teamB_score > 3) goalSkip = true;  
+		if(defending_team == teamB) {teamA_score++;ball_loc=teamB_midfield_zone;} else {teamB_score++;ball_loc=teamA_midfield_zone;};
 		} -> attack(defending_team)	// game ends because first team to score wins
 	
 	// Qing Zhou: Consider incrementing the goal count in the 'fail' case. (Instead of ending the game)
