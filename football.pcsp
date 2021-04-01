@@ -4,13 +4,10 @@
 
 	Some assumptions / simplified rules for our football match:
 
-	1. First team to score wins the entire match
-	2. teamA kicks off the match
-	3. Ball does not go out of bounds
-	4. No fouls committed
-	5. Shots are not blocked by defenders. It is always the goalkeeper that tries to save the shot.
-	6. Players will never pass or dribble backwards
-	7. All players are identical
+	1. Ball does not go out of bounds
+	2. No fouls committed
+	3. Shots are not blocked by defenders. It is always the goalkeeper that tries to save the shot.
+	4. Players will never pass or dribble backwards
 */
 
 #import "PAT.Lib.Football";
@@ -29,9 +26,7 @@
 #define time_limit 30; // each time unit is 15s
 var time = 0;
 
-
-
-var ball_loc = teamA_midfield_zone;	// initial ball location is team A midfield zone, because teamA starts the match
+var ball_loc = teamA_midfield_zone;	// for the case where teamA starts the match
 
 
 /* 
@@ -134,11 +129,9 @@ attack_star_dribbler(attacking_team) = pcase {
 	Currently, intercept_short_pass and tackle share the same implementation
 
 	Note:
-	For our context, there is no concept called "defending_strategy". And, we should probably leave it at that.
+	For our context, there is no concept called "defending_strategy".
 	Because a defending action is really just to counter against a specific type of attacking action.
 	eg. tackle against a dribble, etc
-	
-	^ More on the football talk can be done over discord but for now let's not add defending strategies.
 */
 
 intercept_long_pass(defending_team) = pcase {
