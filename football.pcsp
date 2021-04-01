@@ -35,13 +35,15 @@ var ball_loc = teamA_midfield_zone;	// initial ball location is team A midfield 
 
 
 /* 
-	Famous football strategies, can do a simple google search to find out!
-	I used 1000 2000 etc to avoid clashing with values declared on top.
-	
-	TODO: add more strategies! -> Alex
+	A few of the popular attack strategies used by teams in real life (past/present).
+
+	tiki taka - quick short passes
+	route one - long ball upfield, eg. to target man
+	star dribbler - pass the ball to star dribbler, watch him weave past opponents
 */
-#define tiki_taka 1000;		// quick short passes
-#define route_one 2000;		// whack the ball upfield, basically long pass tactic
+#define tiki_taka 1000;
+#define route_one 2000;
+#define star_dribbler 3000;
 
 /* 
 	Attack strategy used by each team.
@@ -112,6 +114,16 @@ attack_route_one(attacking_team) = pcase {
 	5 : short_pass -> intercept_short_pass( call(opponent_of, attacking_team) )
 	50: long_pass -> intercept_long_pass( call(opponent_of, attacking_team) )
 	5 : dribble -> tackle( call(opponent_of, attacking_team) )
+	20: shoot -> goalkeeper_save( call(opponent_of, attacking_team) )
+};
+
+attack_star_dribbler(attacking_team) = pcase {
+
+	5 : stay -> attack_route_one(attacking_team)
+	20: run -> attack_route_one(attacking_team)
+	20: short_pass -> intercept_short_pass( call(opponent_of, attacking_team) )
+	5 : long_pass -> intercept_long_pass( call(opponent_of, attacking_team) )
+	30: dribble -> tackle( call(opponent_of, attacking_team) )
 	20: shoot -> goalkeeper_save( call(opponent_of, attacking_team) )
 };
 
