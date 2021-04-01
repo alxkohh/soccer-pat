@@ -167,10 +167,8 @@ goalkeeper_save(defending_team) = pcase {
 	fail {
 
 		if (teamA_score - teamB_score < -3 || teamA_score - teamB_score > 3) goalSkip = true;  
-		if(defending_team == teamB) {teamA_score++;ball_loc=teamB_midfield_zone;} else {teamB_score++;ball_loc=teamA_midfield_zone;};
+		if(defending_team == teamB) { teamA_score++;ball_loc=teamB_midfield_zone; } else { teamB_score++;ball_loc=teamA_midfield_zone; };
 		} -> attack(defending_team)	// game ends because first team to score wins
-	
-	// Qing Zhou: Consider incrementing the goal count in the 'fail' case. (Instead of ending the game)
 };
 
 
