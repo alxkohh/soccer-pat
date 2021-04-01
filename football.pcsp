@@ -18,7 +18,6 @@
 // changed. previously teamA is 1, teamB is 2
 #define teamA -1;
 #define teamB 1;
-#define draw 0;
 // simplified football pitch, only 4 zones. A large value would mean closer proximity to teamB's goalpost.
 
 #define teamA_penalty_box 20;	// teamA's goalpost is inside this zone
@@ -32,10 +31,7 @@ var winner = 2;
 #define time_limit 20; // each time unit is 15s
 var time = 0;
 
-#define teamA_win winner == teamA;
-#define teamB_win winner == teamB;
-#define team_draw winner == draw;
-#define timeout time == time_limit;
+
 
 var ball_loc = teamA_midfield_zone;	// initial ball location is team A midfield zone, because teamA starts the match
 
@@ -57,8 +53,19 @@ var ball_loc = teamA_midfield_zone;	// initial ball location is team A midfield 
 var teamA_attack_strategy = tiki_taka;
 var teamB_attack_strategy = route_one;
 
-var teamA_score = 0;
-var teamB_score = 0;
+
+var goalDiff = 0;
+hvar goalSkip = false;
+
+#define timeout time == time_limit;
+#define match_end timeout || goalSkip;
+
+#define teamA_win match_end && goalDiff > 0;
+#define teamB_win match_end && goalDiff < 0;
+#define draw match_end && goalDiff == 0;
+
+
+
 
 // With all the variables and macros out of the way, the model begins now
 
@@ -66,12 +73,12 @@ teamA_attack = attack(teamA);
 teamB_attack = attack(teamB);
 
 attack(attacking_team) = timer{time++;} -> (
-	[time < time_limit] case {
+	[!match_end] case {
 		attacking_team == teamA: attack_with_strategy(teamA, teamA_attack_strategy)
 		attacking_team == teamB: attack_with_strategy(teamB, teamB_attack_strategy)
 		default				   : Skip	// error case! 
 	} []
-	[time == time_limit] check_score() 
+	[match_end] Skip 
 );
 
 test() = case {
@@ -150,16 +157,12 @@ tackle(defending_team) = pcase {
 goalkeeper_save(defending_team) = pcase {
 
 	call(success_rate, defending_team, ball_loc)	  : succeed -> attack(defending_team)	// change of possession
-	100 - call(success_rate, defending_team, ball_loc): fail { if(defending_team == teamB) {teamA_score++; ball_loc=teamB_midfield_zone;} else {teamB_score++; ball_loc=teamA_midfield_zone;}; } ->  attack(defending_team)
-
+	100 - call(success_rate, defending_team, ball_loc): fail { goalDiff = goalDiff + defending_team;
+																if (goalDiff < -3 || goalDiff > 3) goalSkip = true;  
+																if(defending_team == teamB) {ball_loc=teamB_midfield_zone;} else {ball_loc=teamA_midfield_zone;};
+																} -> attack(defending_team)	// game ends because first team to score wins
 	
 	// Qing Zhou: Consider incrementing the goal count in the 'fail' case. (Instead of ending the game)
-};
-
-check_score() = case{
-	teamA_score > teamB_score : succeed{winner = teamA} -> Skip
-	teamB_score > teamA_score : succeed{winner = teamB} -> Skip
-	teamA_score == teamB_score : succeed{winner = draw} -> Skip
 };
 
 
@@ -171,7 +174,7 @@ teamB_start = { ball_loc = teamB_midfield_zone } -> teamB_attack;
 
 #assert teamA_start reaches teamA_win with prob;
 #assert teamA_start reaches teamB_win with prob;
-#assert teamA_start reaches team_draw with prob;
+
 
 #assert teamB_start reaches teamB_win with prob;
 
