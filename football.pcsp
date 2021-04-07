@@ -35,8 +35,10 @@ var winner = -1;
 
 var ball_loc = teamA_midfield_zone;	// initial ball location is team A midfield zone, because teamA starts the match
 
-var pass_score = [100, 100];
-var intercept_score = [100, 100];
+var s_pass_score = [100, 100];
+var l_pass_score = [100, 100];
+var s_intercept_score = [100, 100];
+var l_intercept_score = [100, 100];
 var shoot_score = [100, 100];
 var save_score = [100, 100];
 var dribble_score = [100, 100];
@@ -124,26 +126,23 @@ attack_route_one(attacking_team) = pcase {
 	^ More on the football talk can be done over discord but for now let's not add defending strategies.
 */
 
-intercept_long_pass(defending_team) = {tmp = call(intercept_success_rate, defending_team, ball_loc, pass_score[1-defending_team], intercept_score[defending_team]);} -> pcase {
+intercept_long_pass(defending_team) = {tmp = 100 - call(long_pass_success_rate, defending_team, ball_loc, l_pass_score[1-defending_team], l_intercept_score[defending_team]);} -> pcase {
 	tmp	  		: succeed -> attack(defending_team)	// change of possession
 	100 - tmp	: fail { ball_loc = call(ball_move_forward, call(opponent_of, defending_team), 2, ball_loc) } -> attack( call(opponent_of, defending_team) ) 	// NO change of possession, ball move forward
 };
 
 
-intercept_short_pass(defending_team) = {tmp = call(intercept_success_rate, defending_team, ball_loc, pass_score[1-defending_team], intercept_score[defending_team]);} -> pcase {
-	
+intercept_short_pass(defending_team) = {tmp = 100 - call(short_pass_success_rate, defending_team, ball_loc, s_pass_score[1-defending_team], s_intercept_score[defending_team]);} -> pcase {
 	tmp	  		: succeed -> attack(defending_team)	// change of possession
 	100 - tmp	: fail { ball_loc = call(ball_move_forward, call(opponent_of, defending_team), 1, ball_loc) } -> attack( call(opponent_of, defending_team) ) 	// NO change of possession, ball move forward
 };
 
-tackle(defending_team) = {tmp = call(tackle_success_rate, defending_team, ball_loc, dribble_score[1-defending_team], tackle_score[defending_team]);} -> pcase {
-	
+tackle(defending_team) = {tmp = 100 - call(dribble_success_rate, defending_team, ball_loc, dribble_score[1-defending_team], tackle_score[defending_team]);} -> pcase {
 	tmp			: succeed -> attack(defending_team)	// change of possession
 	100 - tmp	: fail { ball_loc = call(ball_move_forward, call(opponent_of, defending_team), 1, ball_loc) }-> attack( call(opponent_of, defending_team) ) 	// NO change of possession, ball move forward
 };
 
-goalkeeper_save(defending_team) = {tmp = call(save_success_rate, defending_team, ball_loc, shoot_score[1-defending_team], save_score[defending_team]);} -> pcase {
-
+goalkeeper_save(defending_team) = {tmp = 100 - call(shoot_success_rate, defending_team, ball_loc, shoot_score[1-defending_team], save_score[defending_team]);} -> pcase {
 	tmp			: succeed -> attack(defending_team)	// change of possession
 	100 - tmp	: fail { winner = call(opponent_of, defending_team) } -> Skip	// game ends because first team to score wins
 	
