@@ -23,7 +23,7 @@ var teamA_midfield_zone = (zones-1)/2;
 var teamB_midfield_zone = (zones+1)/2;
 #define teamB_penalty_box zones-1;	// teamB's goalpost is inside this zone
 
-#define time_limit 40;
+#define time_limit 20;
 var time = 0;
 
 var ball_loc = teamA_midfield_zone;	// for the case where teamA starts the match
@@ -150,8 +150,8 @@ tackle(defending_team) = {tmp = 100 - call(dribble_success_rate, defending_team,
 
 goalkeeper_save(defending_team) = {tmp = 100 - call(shoot_success_rate, defending_team, ball_loc, shoot_score[1-defending_team], save_score[defending_team]);} -> pcase {
 
-	call(success_rate, defending_team, ball_loc)	  : succeed -> attack(defending_team)	// change of possession
-	100 - call(success_rate, defending_team, ball_loc): 
+	tmp	  : succeed -> attack(defending_team)	// change of possession
+	100 - tmp: 
 	fail {
 
 		//if (teamA_score - teamB_score < -3 || teamA_score - teamB_score > 3) goalSkip = true;  
