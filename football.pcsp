@@ -23,7 +23,7 @@ var teamA_midfield_zone = (zones-1)/2;
 var teamB_midfield_zone = (zones+1)/2;
 #define teamB_penalty_box zones-1;	// teamB's goalpost is inside this zone
 
-#define time_limit 20;
+#define time_limit 40;
 var time = 0;
 
 var ball_loc = teamA_midfield_zone;	// for the case where teamA starts the match
@@ -186,3 +186,32 @@ coin_toss = pcase {
 #assert coin_toss reaches teamB_win with prob;
 #assert coin_toss reaches draw with prob;
 #assert coin_toss reaches teamA_score_below_four with prob;
+
+#define under_twohalf_goals teamA_score + teamB_score < 3 && match_end;
+#assert coin_toss  reaches under_twohalf_goals with prob;
+
+#define over_twohalf_goals teamA_score + teamB_score > 2 && match_end;
+#assert coin_toss  reaches over_twohalf_goals with prob;
+
+#define both_score teamA_score > 0 && teamB_score > 0 && match_end;
+#assert coin_toss reaches both_score with prob;
+
+
+#define teamA_15_handicap teamA_score - teamB_score > 1 && match_end;
+#assert coin_toss reaches teamA_15_handicap with prob;
+
+
+#define teamB_15_handicap teamB_score - teamA_score > 1 && match_end;
+#assert coin_toss reaches teamB_15_handicap with prob;
+
+#define teamA_win_to_nil teamA_score > 0 && teamB_score == 0 && match_end;
+#assert coin_toss reaches teamA_win_to_nil with prob;
+
+#define teamB_25_handicap teamB_score - teamA_score > 2 && match_end;
+#assert coin_toss reaches teamB_25_handicap with prob;
+
+#define no_goal teamB_score + teamA_score == 0 && match_end;
+#assert coin_toss reaches no_goal with prob;
+
+#define teamA_cleansheet teamB_score==0 && match_end;
+#assert coin_toss reaches teamA_cleansheet with prob;
