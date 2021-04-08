@@ -23,10 +23,20 @@ var teamA_midfield_zone = (zones-1)/2;
 var teamB_midfield_zone = (zones+1)/2;
 #define teamB_penalty_box zones-1;	// teamB's goalpost is inside this zone
 
-#define time_limit 20;
+#define time_limit 40;
 var time = 0;
 
 var ball_loc = teamA_midfield_zone;	// for the case where teamA starts the match
+
+// Arsenal,Aston Villa,Brighton,Burnley,Chelsea,Crystal Palace,Everton,Fulham,Leeds United,Leicester City,Liverpool,Manchester City,Manchester Utd,Newcastle Utd,Sheffield Utd,Southampton,Tottenham,West Brom,West Ham,Wolves
+var shoot_scores = [98, 98, 91, 91, 98, 102, 114, 87, 102, 110, 98, 114, 106, 94, 83, 106, 118, 91, 110, 87];
+var save_scores = [100, 118, 84, 110, 99, 89, 102, 109, 106, 101, 96, 116, 102, 91, 96, 80, 115, 95, 96, 95];
+var s_pass_scores = [106, 90, 93, 84, 115, 90, 99, 102, 99, 101, 111, 122, 113, 91, 95, 99, 103, 89, 89, 108];
+var l_pass_scores = [106, 96, 103, 87, 114, 89, 104, 102, 103, 101, 111, 121, 110, 90, 88, 86, 102, 84, 96, 108];
+var s_intercept_scores = [104, 99, 104, 103, 91, 106, 113, 91, 86, 88, 87, 103, 102, 109, 110, 76, 102, 107, 113, 107];
+var l_intercept_scores = [101, 86, 97, 98, 93, 119, 105, 102, 79, 100, 88, 88, 96, 113, 117, 98, 101, 105, 106, 109];
+var dribble_scores = [86, 121, 105, 106, 94, 98, 95, 117, 93, 85, 104, 95, 97, 101, 95, 95, 106, 85, 104, 116];
+var tackle_scores = [96, 115, 105, 113, 100, 107, 100, 103, 86, 100, 94, 103, 79, 101, 92, 119, 111, 90, 87, 101];
 
 var s_pass_score = [100, 100];
 var l_pass_score = [100, 100];
