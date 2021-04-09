@@ -49,11 +49,25 @@ namespace PAT.Lib {
         {
             return 100 / (1 + Math.Exp(-k * (x - x0)));
         }
+        
+        public static int get_zones() {
+        	return zones;
+        }
+        
+        public static int get_loc(int ball_loc) {
+        	return (ball_loc * 100)/zones;
+        }
+        
+        public static int can_shoot(int team, int ball_loc) {
+        	if (team == teamA)
+        		return  (ball_loc >= 7) ? 1 : 0;
+ 			return (ball_loc < 3) ? 1 : 0;
+        }
 
-        public static int shoot_success_rate(int team, int ball_loc, int scoreA, int scoreB)
+        public static int shoot_success_rate(int def_team, int ball_loc, int scoreA, int scoreB)
         {
             var ratio = (double) scoreA / scoreB;
-            return (int) L(ratio, shoot_k, shoot_x0);
+            return (int) L(ratio, shoot_k, shoot_x0) * can_shoot(1-def_team, ball_loc);
         }
         
         public static int short_pass_success_rate(int team, int ball_loc, int scoreA, int scoreB)
@@ -92,7 +106,7 @@ namespace PAT.Lib {
         }
         private static int ball_move_forward_teamA(int numZones, int loc) {
             int newLoc = loc + numZones;
-            // the furthest teamA can go is 80
+            // the furthest teamA can go is zones - 1
             if (newLoc > zones - 1) {
                 return zones - 1;
             } else {
@@ -101,10 +115,10 @@ namespace PAT.Lib {
         }
 
         private static int ball_move_forward_teamB(int numZones, int loc) {
-			int newLoc = loc + numZones;
-            // the furthest teamB can go is 1
-            if (newLoc < 1) {
-                return 1;
+			int newLoc = loc - numZones;
+            // the furthest teamB can go is 0
+            if (newLoc < 0) {
+                return 0;
             } else {
                 return newLoc;
             }
