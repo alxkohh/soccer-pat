@@ -23,7 +23,7 @@ var teamA_midfield_zone = 4;
 var teamB_midfield_zone = 5;
 #define teamB_penalty_box 9;	// teamB's goalpost is inside this zone
 
-#define time_limit 40;
+#define time_limit 30;
 var time = 0;
 
 var ball_loc = teamA_midfield_zone;	// for the case where teamA starts the match
@@ -65,7 +65,7 @@ hvar tmp;
 
 // Set each team's attack strategy
 var teamA_attack_strategy = route_one;
-var teamB_attack_strategy = tiki_taka;
+var teamB_attack_strategy = star_dribbler;
 
 var teamA_score = 0;
 var teamB_score = 0;
@@ -225,3 +225,16 @@ coin_toss = pcase {
 
 #define teamA_cleansheet teamB_score==0 && match_end;
 #assert coin_toss reaches teamA_cleansheet with prob;
+
+// DEBUG
+//teamA_freekick = { ball_loc = zones; call(setZones, zones); } -> goalkeeper_save(teamB);
+//var shootChancesA[10];
+//var shootChancesB[10];
+//var i = 0;
+//
+//getShootChances = {call(setZones, zones); while(i < zones){
+//	ball_loc = i;
+//	shootChancesA[i] = call(shoot_success_rate, teamA, ball_loc, shoot_score[teamA], save_score[teamB]);
+//	shootChancesB[i] = call(shoot_success_rate, teamB, ball_loc, shoot_score[teamB], save_score[teamA]);
+//	i++;
+//}} -> Skip;
