@@ -23,12 +23,12 @@ var teamA_midfield_zone = 4;
 var teamB_midfield_zone = 5;
 #define teamB_penalty_box 9;	// teamB's goalpost is inside this zone
 
-#define time_limit 30;
+#define time_limit 45;
 var time = 0;
 
 var ball_loc = teamA_midfield_zone;	// for the case where teamA starts the match
 
-// Arsenal,Aston Villa,Brighton,Burnley,Chelsea,Crystal Palace,Everton,Fulham,Leeds United,Leicester City,Liverpool,Manchester City,Manchester Utd,Newcastle Utd,Sheffield Utd,Southampton,Tottenham,West Brom,West Ham,Wolves
+
 hvar shoot_scores = [98, 98, 91, 91, 98, 102, 114, 87, 102, 110, 98, 114, 106, 94, 83, 106, 118, 91, 110, 87];
 hvar save_scores = [100, 118, 84, 110, 99, 89, 102, 109, 106, 101, 96, 116, 102, 91, 96, 80, 115, 95, 96, 95];
 hvar s_pass_scores = [106, 90, 93, 84, 115, 90, 99, 102, 99, 101, 111, 122, 113, 91, 95, 99, 103, 89, 89, 108];
@@ -37,15 +37,16 @@ hvar s_intercept_scores = [104, 99, 104, 103, 91, 106, 113, 91, 86, 88, 87, 103,
 hvar l_intercept_scores = [101, 86, 97, 98, 93, 119, 105, 102, 79, 100, 88, 88, 96, 113, 117, 98, 101, 105, 106, 109];
 hvar dribble_scores = [86, 121, 105, 106, 94, 98, 95, 117, 93, 85, 104, 95, 97, 101, 95, 95, 106, 85, 104, 116];
 hvar tackle_scores = [96, 115, 105, 113, 100, 107, 100, 103, 86, 100, 94, 103, 79, 101, 92, 119, 111, 90, 87, 101];
-
-hvar s_pass_score = [100, 100];
-hvar l_pass_score = [100, 100];
-hvar s_intercept_score = [100, 100];
-hvar l_intercept_score = [100, 100];
-hvar shoot_score = [100, 100];
-hvar save_score = [100, 100];
-hvar dribble_score = [100, 130];
-hvar tackle_score = [100, 100];
+hvar teamA_number = 3;
+hvar teamB_number  = 12;
+hvar s_pass_score = [s_pass_scores[teamA_number], s_pass_scores[teamB_number]];
+hvar l_pass_score =  [l_pass_scores[teamA_number], l_pass_scores[teamB_number]];
+hvar s_intercept_score =  [s_intercept_scores[teamA_number], s_intercept_scores[teamB_number]];
+hvar l_intercept_score =  [l_intercept_scores[teamA_number], l_intercept_scores[teamB_number]];
+hvar shoot_score =  [shoot_scores[teamA_number], shoot_scores[teamB_number]];
+hvar save_score =  [save_scores[teamA_number], save_scores[teamB_number]];
+hvar dribble_score =  [dribble_scores[teamA_number], dribble_scores[teamB_number]];
+hvar tackle_score =  [tackle_scores[teamA_number], tackle_scores[teamB_number]];
 
 hvar tmp;
 
