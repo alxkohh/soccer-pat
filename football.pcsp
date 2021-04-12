@@ -19,8 +19,8 @@
 
 #define zones 10;
 #define teamA_penalty_box 0;	// teamA's goalpost is inside this zone
-var teamA_midfield_zone = 4;
-var teamB_midfield_zone = 5;
+#define teamA_midfield_zone 4;
+#define teamB_midfield_zone 5;
 #define teamB_penalty_box 9;	// teamB's goalpost is inside this zone
 
 #define time_limit 30;
