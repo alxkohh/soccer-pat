@@ -19,8 +19,8 @@
 
 #define zones 10;
 #define teamA_penalty_box 0;	// teamA's goalpost is inside this zone
-var teamA_midfield_zone = 4;
-var teamB_midfield_zone = 5;
+#define teamA_midfield_zone 4;
+#define teamB_midfield_zone 5;
 #define teamB_penalty_box 9;	// teamB's goalpost is inside this zone
 
 #define time_limit 45;
@@ -71,8 +71,7 @@ var teamB_attack_strategy = star_dribbler;
 var teamA_score = 0;
 var teamB_score = 0;
 
-#define timeout time == time_limit;
-#define match_end timeout;
+#define match_end time == time_limit;
 
 #define teamA_win match_end && teamA_score > teamB_score;
 #define teamB_win match_end && teamA_score < teamB_score;
