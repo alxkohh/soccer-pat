@@ -27,7 +27,7 @@
 var time = 0;
 
 var ball_loc = teamA_midfield_zone;	// for the case where teamA starts the match
-
+// Arsenal,Aston Villa,Brighton,Burnley,Chelsea,Crystal Palace,Everton,Fulham,Leeds United,Leicester City,Liverpool,Manchester City,Manchester Utd,Newcastle Utd,Sheffield Utd,Southampton,Tottenham,West Brom,West Ham,Wolves
 
 hvar shoot_scores = [98, 98, 91, 91, 98, 102, 114, 87, 102, 110, 98, 114, 106, 94, 83, 106, 118, 91, 110, 87];
 hvar save_scores = [100, 118, 84, 110, 99, 89, 102, 109, 106, 101, 96, 116, 102, 91, 96, 80, 115, 95, 96, 95];
