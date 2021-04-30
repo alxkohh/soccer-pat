@@ -1,14 +1,14 @@
 # CS3211 Project - Applying Probablistic Model Checking in Soccer Analytics
 
 Team name: 
-gamestonks
+Gamestonks
 
 Team members:
-Alex, Yi Jing, Alfred, Qing Zhou
+Alex, Qing Zhou, Yi Jing, Alfred
 
 ## Setup
 
-Before you proceed, ensure you have: PAT, Windows OS, git
+Before you proceed, ensure you have: [PAT (Ver 3.5.1)](https://www.comp.nus.edu.sg/~pat/patdownload.htm), [Windows OS](https://www.microsoft.com/en-us/software-download/windows10ISO), [git](https://git-scm.com/)
 
 1. Clone the repository
 2. Copy the 2 files inside csharp/ into C:\Program Files\Process Analysis Toolkit\Process Analysis Toolkit 3.5.1\Lib
