@@ -17,7 +17,7 @@ namespace PAT.Lib {
     public class Football {
 	     
         private static int teamA = 0;
-        private static int zones = 4;
+        private static int zones = 10;
         private static int shortPassDistance = 1;
         private static int longPassDistance = 2;
         
